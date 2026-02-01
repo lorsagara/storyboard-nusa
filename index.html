@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Storyboard Prompt Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: system-ui, Arial, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 16px;
+    }
+    h1 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    button {
+      background: #38bdf8;
+      color: #020617;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    pre {
+      background: #020617;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 16px;
+      white-space: pre-wrap;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Storyboard Prompt Generator</h1>
+
+  <p>Isi prompt di bawah (bebas format):</p>
+
+  <textarea id="promptInput">
+Topik:
+Style:
+Jumlah scene:
+Aspect ratio:
+  </textarea>
+
+  <button onclick="generate()">Generate</button>
+
+  <pre id="output">Hasil JSON akan muncul di sini…</pre>
+
+  <script>
+    async function generate() {
+      const output = document.getElementById("output");
+      const prompt = document.getElementById("promptInput").value;
+
+      output.textContent = "Loading...";
+
+      try {
+        const res = await fetch("https://lintasnusa.lorsagara.workers.dev", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt })
+        });
+
+        const text = await res.text();
+        output.textContent = text;
+      } catch (err) {
+        output.textContent = "Error: " + err.message;
+      }
+    }
+  </script>
+
+</body>
+</html>
