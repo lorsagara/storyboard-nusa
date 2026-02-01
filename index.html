@@ -69,8 +69,8 @@ function render(d){
   d.scenes.forEach(sc=>{
     const div=document.createElement("div");
     div.className="scene";
-    div.innerHTML=`<b>Scene ${sc.scene} (${sc.mode})</b><pre>${sc.prompt}</pre>
-    <button class="small" onclick="copyText('${escape(sc.prompt)}')">Copy Prompt</button>`;
+    div.innerHTML=`<b>Scene ${sc.scene} (${sc.mode})</b><pre>${decodeURIComponent(sc.prompt)}</pre>
+<button class="small" onclick="copyText('${escape(decodeURIComponent(sc.prompt))}')">Copy Prompt</button>`;
     result.appendChild(div);
   });
 }
