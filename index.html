@@ -4,36 +4,42 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Storyboard Prompt Generator</title>
+
   <style>
     body {
+      margin: 0;
+      padding: 20px;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: #0f172a;
       color: #e5e7eb;
-      padding: 20px;
     }
+
     h1 {
       margin-bottom: 8px;
     }
+
     textarea {
       width: 100%;
       min-height: 180px;
       padding: 12px;
-      font-size: 14px;
       border-radius: 8px;
       border: none;
       outline: none;
+      font-size: 14px;
       margin-bottom: 12px;
     }
+
     button {
       padding: 12px 20px;
       font-size: 16px;
-      border: none;
       border-radius: 8px;
-      cursor: pointer;
+      border: none;
       background: #38bdf8;
       color: #020617;
       font-weight: bold;
+      cursor: pointer;
     }
+
     pre {
       margin-top: 16px;
       background: #020617;
@@ -41,6 +47,7 @@
       border-radius: 8px;
       white-space: pre-wrap;
       word-break: break-word;
+      font-size: 13px;
     }
   </style>
 </head>
@@ -60,33 +67,37 @@ Format output: JSON
 
   <button id="generateBtn">Generate</button>
 
-  <pre id="output"></pre>
+  <pre id="output">Klik Generate untuk test...</pre>
 
   <script>
     const btn = document.getElementById("generateBtn");
     const promptEl = document.getElementById("prompt");
     const outputEl = document.getElementById("output");
 
-    btn.addEventListener("click", async () => {
+    btn.onclick = async () => {
       outputEl.textContent = "Generating...";
 
       try {
-        const res = await fetch("https://lintasnusa.lorsagara.workers.dev", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            prompt: promptEl.value
-          })
-        });
+        const response = await fetch(
+          "https://lintasnusa.lorsagara.workers.dev",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              prompt: promptEl.value
+            })
+          }
+        );
 
-        const data = await res.json();
-        outputEl.textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        outputEl.textContent = "Error: " + err.message;
+        const text = await response.text();
+        outputEl.textContent = text;
+
+      } catch (error) {
+        outputEl.textContent = "ERROR: " + error.message;
       }
-    });
+    };
   </script>
 </body>
 </html>
