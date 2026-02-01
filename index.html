@@ -2,85 +2,91 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Storyboard Prompt Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
-      font-family: system-ui, Arial, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       background: #0f172a;
       color: #e5e7eb;
-      padding: 16px;
+      padding: 20px;
     }
     h1 {
-      font-size: 20px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     textarea {
       width: 100%;
-      min-height: 140px;
-      padding: 10px;
+      min-height: 180px;
+      padding: 12px;
+      font-size: 14px;
       border-radius: 8px;
       border: none;
+      outline: none;
       margin-bottom: 12px;
-      font-size: 14px;
     }
     button {
+      padding: 12px 20px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
       background: #38bdf8;
       color: #020617;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
+      font-weight: bold;
     }
     pre {
+      margin-top: 16px;
       background: #020617;
       padding: 12px;
       border-radius: 8px;
-      margin-top: 16px;
       white-space: pre-wrap;
-      font-size: 13px;
+      word-break: break-word;
     }
   </style>
 </head>
+
 <body>
-
   <h1>Storyboard Prompt Generator</h1>
-
   <p>Isi prompt di bawah (bebas format):</p>
 
-  <textarea id="promptInput">
-Topik:
-Style:
-Jumlah scene:
-Aspect ratio:
+  <textarea id="prompt">
+Buat storyboard sederhana
+Topik: Kehidupan berang-berang di sungai
+Style visual: Pixar-style 3D
+Jumlah scene: 5
+Aspect ratio: 9:16
+Format output: JSON
   </textarea>
 
-  <button onclick="generate()">Generate</button>
+  <button id="generateBtn">Generate</button>
 
-  <pre id="output">Hasil JSON akan muncul di sini…</pre>
+  <pre id="output"></pre>
 
   <script>
-    async function generate() {
-      const output = document.getElementById("output");
-      const prompt = document.getElementById("promptInput").value;
+    const btn = document.getElementById("generateBtn");
+    const promptEl = document.getElementById("prompt");
+    const outputEl = document.getElementById("output");
 
-      output.textContent = "Loading...";
+    btn.addEventListener("click", async () => {
+      outputEl.textContent = "Generating...";
 
       try {
-        const res = await fetch("https://lintasnusa.lorsagara.workers.dev", {
+        const res = await fetch("https://gara.workers.dev", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt })
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            prompt: promptEl.value
+          })
         });
 
-        const text = await res.text();
-        output.textContent = text;
+        const data = await res.json();
+        outputEl.textContent = JSON.stringify(data, null, 2);
       } catch (err) {
-        output.textContent = "Error: " + err.message;
+        outputEl.textContent = "Error: " + err.message;
       }
-    }
+    });
   </script>
-
 </body>
 </html>
