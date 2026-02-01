@@ -4,73 +4,94 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Storyboard Prompt Generator</title>
-
 <style>
-body {
-  font-family: system-ui, sans-serif;
-  background: #0f172a;
-  color: #e5e7eb;
-  padding: 20px;
-}
-textarea {
-  width: 100%;
-  min-height: 160px;
-  padding: 12px;
-  border-radius: 8px;
-}
-button {
-  margin-top: 12px;
-  padding: 12px;
-  font-size: 16px;
-  border-radius: 8px;
-  border: none;
-  background: #38bdf8;
-  font-weight: bold;
-}
-pre {
-  margin-top: 16px;
-  background: #020617;
-  padding: 12px;
-  border-radius: 8px;
-  white-space: pre-wrap;
-}
+body{font-family:system-ui;background:#0f172a;color:#e5e7eb;padding:20px}
+textarea,select,button{width:100%;margin-top:10px;padding:10px;border-radius:8px}
+button{background:#38bdf8;font-weight:bold}
+.scene{margin-top:12px;padding:10px;background:#020617;border-radius:8px}
+.small{font-size:12px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 </style>
 </head>
 
 <body>
-<h2>Storyboard Prompt Generator</h2>
+<h2>Storyboard Prompt Generator — Final</h2>
 
-<textarea id="prompt">
-Buat storyboard sederhana
-Topik: Kehidupan berang-berang di sungai
-Style visual: Pixar-style 3D
-Jumlah scene: 5
-Aspect ratio: 9:16
-Format output: JSON
-</textarea>
+<textarea id="prompt">Topik: Kehidupan berang-berang di sungai</textarea>
+
+<div class="row">
+  <select id="mode">
+    <option value="image">Image Prompt</option>
+    <option value="video">Video Prompt</option>
+  </select>
+  <select id="platform">
+    <option value="shorts">YouTube Shorts</option>
+    <option value="reels">Instagram Reels</option>
+    <option value="tiktok">TikTok</option>
+  </select>
+</div>
+
+<div class="row">
+  <select id="style">
+    <option value="pixar">Pixar</option>
+    <option value="anime">Anime</option>
+    <option value="realistic">Realistic</option>
+    <option value="clay">Clay</option>
+    <option value="roblox">Roblox</option>
+    <option value="lego">Lego</option>
+    <option value="2d">2D HD</option>
+    <option value="dark">Dark Fantasy</option>
+  </select>
+  <select id="scenes">
+    <option>3</option><option selected>5</option><option>7</option>
+  </select>
+</div>
 
 <button onclick="generate()">Generate</button>
+<button onclick="saveTemplate()">Save Template</button>
+<button onclick="exportJSON()">Export JSON</button>
+<button onclick="exportTXT()">Export TXT</button>
 
-<pre id="output">Klik Generate…</pre>
+<div id="result"></div>
 
 <script>
-function generate() {
-  const prompt = encodeURIComponent(
-    document.getElementById("prompt").value
-  );
+const workerURL="https://lintasnusa.lorsagara.workers.dev";
+let lastData=null;
 
-  const url =
-    "https://lintasnusa.lorsagara.workers.dev?prompt=" + prompt;
-
-  fetch(url)
-    .then(r => r.text())
-    .then(t => {
-      document.getElementById("output").textContent = t;
-    })
-    .catch(e => {
-      document.getElementById("output").textContent =
-        "ERROR: " + e.message;
-    });
+function generate(){
+  const p=encodeURIComponent(prompt.value);
+  const m=mode.value,s=style.value,c=scenes.value,pl=platform.value;
+  const url=`${workerURL}?prompt=${p}&mode=${m}&style=${s}&scenes=${c}&platform=${pl}`;
+  fetch(url).then(r=>r.json()).then(d=>{lastData=d;render(d)});
+}
+function render(d){
+  result.innerHTML="";
+  d.scenes.forEach(sc=>{
+    const div=document.createElement("div");
+    div.className="scene";
+    div.innerHTML=`<b>Scene ${sc.scene} (${sc.mode})</b><pre>${sc.prompt}</pre>
+    <button class="small" onclick="copyText('${escape(sc.prompt)}')">Copy Prompt</button>`;
+    result.appendChild(div);
+  });
+}
+function copyText(t){navigator.clipboard.writeText(t);alert("Copied")}
+function exportJSON(){
+  if(!lastData)return;
+  download("storyboard.json",JSON.stringify(lastData,null,2),"application/json");
+}
+function exportTXT(){
+  if(!lastData)return;
+  const txt=lastData.scenes.map(s=>`Scene ${s.scene}\n${s.prompt}`).join("\n\n");
+  download("storyboard.txt",txt,"text/plain");
+}
+function download(name,content,type){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([content],{type}));
+  a.download=name;a.click();
+}
+function saveTemplate(){
+  localStorage.setItem("template_"+Date.now(),prompt.value);
+  alert("Template saved");
 }
 </script>
 </body>
